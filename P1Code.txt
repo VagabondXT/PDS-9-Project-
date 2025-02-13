@@ -1,0 +1,75 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the dataset from the URL
+url = 'https://raw.githubusercontent.com/PulockDas/pd-12-resources/refs/heads/master/titanic.csv'
+titanic_data = pd.read_csv(url)
+
+# Display the first few rows to verify the data has loaded correctly
+print(titanic_data.head())
+
+
+# Check for null values in each column
+null_counts = titanic_data.isnull().sum()
+print("Null values per column:\n", null_counts)
+
+# Identify columns that have null values
+columns_with_null = titanic_data.columns[titanic_data.isnull().any()]
+print("\nColumns with Null values:", list(columns_with_null))
+
+# Fill null values using the DataFrame's fillna method
+mean_age = titanic_data['Age'].mean()
+titanic_data.fillna({'Age': mean_age, 'Cabin': 'Unknown'}, inplace=True)
+
+
+# Group data by 'Survived' and 'Sex' and count
+survived_gender = titanic_data.groupby(['Survived', 'Sex']).size().unstack()
+
+# Plot the data
+survived_gender.plot(kind='bar', stacked=True, figsize=(8,6))
+plt.title('Survived vs Dead by Gender')
+plt.xlabel('Survived (0 = Dead, 1 = Survived)')
+plt.ylabel('Number of Passengers')
+plt.legend(title='Sex')
+plt.show()
+
+
+# Group data by 'Survived' and 'Pclass' and count
+survived_pclass = titanic_data.groupby(['Survived', 'Pclass']).size().unstack()
+
+# Plot the data
+survived_pclass.plot(kind='bar', stacked=True, figsize=(8,6))
+plt.title('Survived vs Dead by Passenger Class')
+plt.xlabel('Survived (0 = Dead, 1 = Survived)')
+plt.ylabel('Number of Passengers')
+plt.legend(title='Pclass')
+plt.show()
+
+
+# Define age bins and labels
+bins = [-1, 16, 26, 36, 62, float('inf')]
+labels = [0, 1, 2, 3, 4]
+
+# Create 'AgeClass' column
+titanic_data['AgeClass'] = pd.cut(titanic_data['Age'], bins=bins, labels=labels)
+
+# Verify the new column
+print(titanic_data[['AgeClass']].head())
+
+
+# Drop 'Age' column
+titanic_data.drop(columns=['Age'], inplace=True)
+
+# Confirm the column is dropped
+print("Columns after dropping 'Age':", titanic_data.columns.tolist())
+
+# Group data by 'Survived' and 'AgeClass' and count
+survived_ageclass = titanic_data.groupby(['Survived', 'AgeClass']).size().unstack()
+
+# Plot the data
+survived_ageclass.plot(kind='bar', stacked=True, figsize=(8,6))
+plt.title('Survived vs Dead by AgeClass')
+plt.xlabel('Survived (0 = Dead, 1 = Survived)')
+plt.ylabel('Number of Passengers')
+plt.legend(title='AgeClass')
+plt.show()
